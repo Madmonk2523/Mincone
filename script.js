@@ -350,82 +350,64 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-/* ===== VIDEO PLAY/PAUSE ON VISIBILITY ===== */
+/* ===== VIDEO AUTOPLAY ON USER INTERACTION ===== */
 function initHeroVideo() {
   const video = document.querySelector('.hero-video');
   if (!video) return;
 
-  // Set all required attributes for mobile autoplay
+  // Set all muted attributes required for any autoplay
   video.muted = true;
-  video.playsInline = true;
   video.defaultMuted = true;
   video.volume = 0;
-  video.preload = 'auto';
+  video.playsInline = true;
+  video.preload = 'metadata';
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
 
-  // Immediate play attempt - run synchronously
-  const immediatePlay = () => {
+  let autoplayTriggered = false;
+
+  // Function to start video playback
+  const startVideo = () => {
+    if (autoplayTriggered) return;
+    autoplayTriggered = true;
+
     video.muted = true;
-    video.volume = 0;
     const playPromise = video.play();
-    if (playPromise !== undefined) {
+    if (playPromise) {
       playPromise.then(() => {
-        console.log('✓ Video playing automatically');
+        console.log('✓ Video started playing');
+        // Remove all listeners after successful play
+        document.removeEventListener('click', startVideo);
+        document.removeEventListener('touchstart', startVideo);
+        document.removeEventListener('scroll', startVideo);
       }).catch(err => {
-        console.log('✗ Autoplay blocked, waiting for user interaction');
+        console.log('✗ Video play failed:', err.message);
+        autoplayTriggered = false; // Allow retry
       });
     }
   };
 
-  // Try immediately if ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', immediatePlay);
-  } else {
-    immediatePlay();
-  }
+  // Trigger on first user interaction (most reliable for mobile)
+  document.addEventListener('click', startVideo, { once: true });
+  document.addEventListener('touchstart', startVideo, { once: true });
+  document.addEventListener('scroll', startVideo, { once: true, passive: true });
 
-  // Try on window load event
-  window.addEventListener('load', () => {
-    video.muted = true;
-    video.play().catch(() => {});
-  });
-
-  // Try when video can play
-  video.addEventListener('canplay', () => {
-    if (video.paused) {
+  // Also try on page load and when video is ready
+  const attemptAutoplay = () => {
+    if (!autoplayTriggered && video.readyState >= 2) {
       video.muted = true;
       video.play().catch(() => {});
     }
-  }, { once: true });
-
-  // Try when metadata loads
-  video.addEventListener('loadedmetadata', () => {
-    if (video.paused) {
-      video.muted = true;
-      video.play().catch(() => {});
-    }
-  }, { once: true });
-
-  // Fallback: Play on first user interaction
-  const enablePlayOnInteraction = () => {
-    video.muted = true;
-    video.play().catch(() => {});
-    // Remove listeners after first successful play
-    document.removeEventListener('click', enablePlayOnInteraction);
-    document.removeEventListener('touchstart', enablePlayOnInteraction);
-    document.removeEventListener('scroll', enablePlayOnInteraction);
   };
 
-  document.addEventListener('click', enablePlayOnInteraction, { once: true });
-  document.addEventListener('touchstart', enablePlayOnInteraction, { once: true });
-  document.addEventListener('scroll', enablePlayOnInteraction, { once: true, passive: true });
+  window.addEventListener('load', attemptAutoplay);
+  video.addEventListener('canplay', attemptAutoplay);
+  video.addEventListener('canplaythrough', attemptAutoplay);
 
-  // Intersection observer for play/pause on scroll
+  // Intersection observer for pause when out of view
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting && video.paused) {
-        video.muted = true;
-        video.play().catch(() => {});
-      } else if (!entry.isIntersecting && !video.paused) {
+      if (!entry.isIntersecting && !video.paused) {
         video.pause();
       }
     });
@@ -434,14 +416,12 @@ function initHeroVideo() {
   observer.observe(video);
 }
 
-// Initialize video as early as possible
+// Initialize as soon as DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initHeroVideo);
 } else {
   initHeroVideo();
 }
-
-window.addEventListener('load', initHeroVideo);
 
 /* ===== TESTIMONIALS SLIDER (Optional) ===== */
 function initTestimonialSlider() {
