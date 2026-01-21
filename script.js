@@ -363,12 +363,38 @@ function initHeroVideo() {
   video.setAttribute('x5-playsinline', '');
   video.setAttribute('muted', '');
   video.setAttribute('autoplay', '');
+  video.defaultMuted = true;
+  
+  // Try to play the video immediately
+  const tryPlay = () => {
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.log('Autoplay prevented, trying again on interaction');
+        // If autoplay fails, try again on first user interaction
+        const playOnInteraction = () => {
+          video.play();
+          document.removeEventListener('touchstart', playOnInteraction);
+          document.removeEventListener('click', playOnInteraction);
+        };
+        document.addEventListener('touchstart', playOnInteraction, { once: true });
+        document.addEventListener('click', playOnInteraction, { once: true });
+      });
+    }
+  };
+  
+  // Try to play when video is loaded
+  if (video.readyState >= 3) {
+    tryPlay();
+  } else {
+    video.addEventListener('loadeddata', tryPlay, { once: true });
+  }
   
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         video.play().catch(() => {
-          // Autoplay was prevented, that's okay
+          // Autoplay was prevented
         });
       } else {
         video.pause();
