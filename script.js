@@ -355,47 +355,66 @@ function initHeroVideo() {
   const video = document.querySelector('.hero-video');
   if (!video) return;
 
-  // Ensure mobile autoplay by explicitly setting inline playback and muted flags
+  // Force all mobile autoplay attributes
   video.muted = true;
   video.playsInline = true;
+  video.defaultMuted = true;
+  video.volume = 0;
   video.setAttribute('playsinline', '');
   video.setAttribute('webkit-playsinline', '');
   video.setAttribute('x5-playsinline', '');
   video.setAttribute('muted', '');
   video.setAttribute('autoplay', '');
-  video.defaultMuted = true;
   
-  // Try to play the video immediately
+  // Aggressive autoplay attempt
   const tryPlay = () => {
+    video.muted = true;
     const playPromise = video.play();
+    
     if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        console.log('Autoplay prevented, trying again on interaction');
-        // If autoplay fails, try again on first user interaction
-        const playOnInteraction = () => {
-          video.play();
-          document.removeEventListener('touchstart', playOnInteraction);
-          document.removeEventListener('click', playOnInteraction);
-        };
-        document.addEventListener('touchstart', playOnInteraction, { once: true });
-        document.addEventListener('click', playOnInteraction, { once: true });
-      });
+      playPromise
+        .then(() => {
+          console.log('Video autoplay successful');
+        })
+        .catch(error => {
+          console.log('Autoplay blocked, setting up interaction trigger');
+          
+          // Multiple fallback interaction events for mobile
+          const playOnInteraction = () => {
+            video.muted = true;
+            video.play().catch(e => console.log('Play failed:', e));
+          };
+          
+          // Listen for various interaction types
+          document.addEventListener('touchstart', playOnInteraction, { once: true });
+          document.addEventListener('touchend', playOnInteraction, { once: true });
+          document.addEventListener('click', playOnInteraction, { once: true });
+          document.addEventListener('scroll', playOnInteraction, { once: true, passive: true });
+        });
     }
   };
   
-  // Try to play when video is loaded
+  // Multiple attempt points
   if (video.readyState >= 3) {
     tryPlay();
   } else {
+    video.addEventListener('loadedmetadata', tryPlay, { once: true });
     video.addEventListener('loadeddata', tryPlay, { once: true });
+    video.addEventListener('canplay', tryPlay, { once: true });
   }
   
+  // Force play after a short delay
+  setTimeout(() => {
+    if (video.paused) {
+      tryPlay();
+    }
+  }, 500);
+  
+  // Intersection observer for play/pause on scroll
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        video.play().catch(() => {
-          // Autoplay was prevented
-        });
+        video.play().catch(() => {});
       } else {
         video.pause();
       }
@@ -406,6 +425,15 @@ function initHeroVideo() {
 }
 
 document.addEventListener('DOMContentLoaded', initHeroVideo);
+
+// Also try on window load as fallback
+window.addEventListener('load', () => {
+  const video = document.querySelector('.hero-video');
+  if (video && video.paused) {
+    video.muted = true;
+    video.play().catch(() => {});
+  }
+});
 
 /* ===== TESTIMONIALS SLIDER (Optional) ===== */
 function initTestimonialSlider() {
