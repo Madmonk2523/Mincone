@@ -354,6 +354,15 @@ document.addEventListener('DOMContentLoaded', function() {
 function initHeroVideo() {
   const video = document.querySelector('.hero-video');
   if (!video) return;
+
+  // Ensure mobile autoplay by explicitly setting inline playback and muted flags
+  video.muted = true;
+  video.playsInline = true;
+  video.setAttribute('playsinline', '');
+  video.setAttribute('webkit-playsinline', '');
+  video.setAttribute('x5-playsinline', '');
+  video.setAttribute('muted', '');
+  video.setAttribute('autoplay', '');
   
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
