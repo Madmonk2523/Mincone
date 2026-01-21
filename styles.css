@@ -531,36 +531,43 @@ section {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 100%;
-  height: 100%;
+  transform: translate(-50%, -50%);
   min-width: 100%;
   min-height: 100%;
-  transform: translate(-50%, -50%);
+  width: auto;
+  height: auto;
+  max-width: none;
   object-fit: cover;
-  object-position: center;
+  object-position: center center;
   z-index: -2;
 }
 
-@media (max-width: 768px) {
+/* Ensure video covers on all screen sizes */
+@media (min-aspect-ratio: 16/9) {
+  .hero-video {
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media (max-aspect-ratio: 16/9) {
   .hero-video {
     width: auto;
-    height: auto;
-    min-width: 100%;
-    min-height: 100%;
+    height: 100%;
+  }
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+  .hero-video {
+    object-position: center center;
   }
 }
 
 @media (max-width: 480px) {
   .hero-video {
-    width: 100%;
-    height: 100%;
-  }
-  
-  /* Fallback for very small screens */
-  @supports (min-height: 100dvh) {
-    .hero-video {
-      min-height: 100dvh;
-    }
+    min-width: 100%;
+    min-height: 100%;
   }
 }
 
