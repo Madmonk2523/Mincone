@@ -60,6 +60,9 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -422,6 +425,7 @@ section {
     padding: 100px 32px 32px;
     transition: var(--transition-normal);
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
   }
   
   .navbar-menu.active {
@@ -430,8 +434,8 @@ section {
   
   .navbar-link {
     width: 100%;
-    padding: 16px;
-    font-size: 1.125rem;
+    padding: 14px;
+    font-size: 1rem;
   }
   
   .navbar-dropdown-menu {
@@ -453,12 +457,14 @@ section {
   }
   
   .navbar-cta {
-    margin: 24px 0 0;
+    margin: 20px 0 0;
     width: 100%;
   }
   
   .navbar-cta .btn {
     width: 100%;
+    padding: 12px 16px;
+    font-size: 0.9375rem;
   }
   
   .navbar-toggle.active span:nth-child(1) {
@@ -471,6 +477,26 @@ section {
   
   .navbar-toggle.active span:nth-child(3) {
     transform: rotate(-45deg) translate(5px, -5px);
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 10px 0;
+  }
+  
+  .navbar-logo img {
+    height: 40px;
+  }
+  
+  .navbar-menu {
+    max-width: 100%;
+    padding: 80px 20px 20px;
+  }
+  
+  .navbar-link {
+    padding: 12px;
+    font-size: 0.9375rem;
   }
 }
 
@@ -742,13 +768,54 @@ section {
   .about-preview-image {
     order: -1;
   }
+  
+  .about-preview-stats {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-preview-stats {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .stat-item {
+    padding: 20px;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
+  }
 }
 
 /* ===== SERVICES SECTION ===== */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 32px;
+}
+
+@media (max-width: 640px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .service-card {
+    padding: 28px 20px;
+  }
+  
+  .service-card-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 20px;
+  }
+  
+  .service-card-icon svg {
+    width: 28px;
+    height: 28px;
+  }
 }
 
 .service-card {
@@ -974,8 +1041,25 @@ section {
 /* ===== TESTIMONIALS ===== */
 .testimonials-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .testimonial-card {
+    padding: 24px 20px;
+  }
+  
+  .testimonial-card::before {
+    font-size: 4rem;
+    top: 16px;
+    right: 20px;
+  }
 }
 
 .testimonial-card {
@@ -2003,30 +2087,83 @@ section {
 }
 
 /* ===== MEDIA QUERIES ===== */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+  
   :root {
     --section-padding: 60px 0;
+    --container-padding: 0 20px;
+  }
+  
+  .container {
+    padding: 0 20px;
   }
   
   h1 {
     font-size: 2rem;
+    line-height: 1.2;
   }
   
   h2 {
     font-size: 1.75rem;
+    line-height: 1.3;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+  }
+  
+  p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+  
+  :root {
+    --section-padding: 50px 0;
+    --container-padding: 0 16px;
+  }
+  
+  .container {
+    padding: 0 16px;
+  }
+  
+  h1 {
+    font-size: 1.875rem;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+  }
+  
+  p {
+    font-size: 0.9375rem;
   }
   
   .btn {
-    padding: 12px 24px;
+    padding: 12px 20px;
     font-size: 0.9375rem;
   }
   
   .btn-lg {
-    padding: 14px 28px;
+    padding: 14px 24px;
+    font-size: 1rem;
   }
   
   .hero {
-    padding: 100px 0 60px;
+    padding: 100px 0 50px;
   }
   
   .hero-features {
@@ -2038,6 +2175,7 @@ section {
   .hero-buttons {
     flex-direction: column;
     width: 100%;
+    gap: 12px;
   }
   
   .hero-buttons .btn {
@@ -2054,5 +2192,18 @@ section {
   
   .reviews-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .page-header {
+    padding: 120px 0 50px;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .cta-buttons .btn {
+    width: 100%;
   }
 }
